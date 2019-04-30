@@ -1,28 +1,22 @@
-start:
-	npx babel-node -- src/bin/gendiff.js -h
+install: install-deps install-flow-typed
 
-install:
+develop:
+	npx webpack-dev-server
+
+install-deps:
 	npm install
 
-publish:
-	npm publish
+build:
+	rm -rf dist
+	NODE_ENV=production npx webpack
+
+test:
+	npm test
 
 lint:
 	npx eslint .
 
-test:
-	npm run test
+publish:
+	npm publish
 
-testwatch:
-	npm run test:watch
-
-testone:
-	npm run test:one
-
-testcoverage:
-	npm run test:coverage
-
-
-
-
-
+.PHONY: test
