@@ -1,0 +1,45 @@
+{
+  "name": "rssreader",
+  "version": "0.0.1",
+  "description": "RSS Reader, Hexlet Project3, JS developer course",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:one": "jest -t 'tree, json'",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adenisovgit/project-lvl3-s452.git"
+  },
+  "keywords": [
+    "rss",
+    "hexlet",
+    "Project3"
+  ],
+  "author": "Andrej Denisov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adenisovgit/project-lvl3-s452/issues"
+  },
+  "homepage": "https://github.com/adenisovgit/project-lvl3-s452#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.4.4",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.0.0",
+    "debug": "^4.0.1",
+    "eslint": "^5.12.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-import": "^2.15.0",
+    "eslint-plugin-jest": "^22.4.1",
+    "jest": "^24.5.0",
+    "jest-cli": "^24.0.0"
+  }
+}
