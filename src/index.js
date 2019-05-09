@@ -1,4 +1,4 @@
-import init from './init';
+import main from './main';
 import 'bootstrap';
 
-init();
+main();
