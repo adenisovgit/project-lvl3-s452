@@ -8,17 +8,37 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>RSS Reader</title>
+    <title>Simple RSS Reader</title>
   </head>
   <body>
-    <div class="jumbotron">
-      <h1 class="display-4">RSS Reader</h1>
-      <form class="needs-validation" novalidate>
+    <div class="jumbotron pt-2 pb-3">
+      <h1 class="display-4">Simple RSS Reader</h1>
+      <form id="rssInputForm" class="needs-validation" novalidate>
         <div class="form-group">
           <input type="text" id="rssInput" class="form-control" placeholder="Add RSS feed">
+          <div class="invalid-feedback" id="inputErrorMessage">
+              Please provide a valid RSS feed.
+          </div>  
         </div>
-        <button type="submit" id="rssInputButton" class="btn btn-primary">Submit</button>
+        <button type="submit" id="rssInputButton" class="btn btn-primary">Add RSS feed to list</button>
       </form>
+    </div>
+    <div class="accordion" id="feedsAccordion">
+        <div class="card d-none " id="cardTemplate">
+          <div class="card-header pt-1 pb-1 pl-0">
+            <h5 class="mb-0">
+              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTemplate" aria-expanded="true" aria-controls="collapseTemplate">
+                RSS header
+              </button>
+            </h5>
+          </div>
+      
+          <div id="collapseTemplate" class="collapse show pt-3 pb-3 pl-5" aria-labelledby="headingTemplate" data-parent="#feedsAccordion">
+            <div class="card-body">
+              BODY
+            </div>
+          </div>
+        </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
