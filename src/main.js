@@ -1,14 +1,16 @@
 import '@babel/polyfill';
 import isURL from 'validator/lib/isURL';
 import { watch } from 'melanke-watchjs';
+import axios from 'axios';
+import feedTemplate from './templates';
+
 
 export default () => {
   const state = {
     rssAddressState: 'init',
     feeds: ['cardTemplate'],
+    feedsToUpdate: [],
   };
-
-  const feedsData = [''];
 
   const validateRssAddress = (e) => {
     if (isURL(e.target.value)) {
@@ -58,34 +60,56 @@ export default () => {
 
   const submitForm = (e) => {
     e.preventDefault();
-    if (state.rssAddressState !== 'ok') {
-      return;
-    }
     if (rssInput.value === '') {
       state.rssAddressState = 'empty';
+      return;
+    }
+    if (state.rssAddressState !== 'ok') {
       return;
     }
     state.feeds.push(rssInput.value);
     state.rssAddressState = 'init';
   };
 
+  const updateRssFeed = () => {
+    axios.get(`https://cors-anywhere.herokuapp.com/http://lorem-rss.herokuapp.com/feed`)
+      .then((response) => {
+        const doc = (new DOMParser()).parseFromString(response, 'application/xml');
+        // alert(JSON.stringify(response));
+        // alert(JSON.stringify(doc));
+        // alert(doc.querySelectorAll('item').length);
+
+        doc.querySelectorAll('item').forEach((item) => {
+          const h1 = document.createElement('h1');
+          h1.textContent = item.querySelector('title').textContent;
+          alert(item.querySelector('title').textContent);
+          document.querySelector('collapse1').children[0].appendChild(h1);
+        });
+      });
+  };
+
   const addNewRss = () => {
     const feedNumber = state.feeds.length - 1;
     const newCard = document.getElementById(state.feeds[0]).cloneNode(true);
     newCard.innerHTML = newCard.innerHTML.replace(/template/gi, feedNumber);
-    newCard.querySelector('div.show').classList.remove('show');
-
+    if (newCard.querySelector('div.show')) {
+      newCard.querySelector('div.show').classList.remove('show');
+    }
     newCard.querySelector('.btn.btn-link').innerHTML = state.feeds[feedNumber];
-    newCard.querySelector('div.collapse').innerHTML = state.feeds[feedNumber];
+    newCard.querySelector('div.collapse').children[0].innerHTML = state.feeds[feedNumber];
 
     newCard.classList.remove('d-none');
     feedsAccordion.appendChild(newCard);
+    updateRssFeed();
   };
 
   rssInput.addEventListener('input', validateRssAddress);
   rssInputForm.addEventListener('submit', submitForm);
-  // addRssButton.addEventListener('click', pressAddRssButton);
-
   watch(state, 'rssAddressState', processRssAddress);
   watch(state, 'feeds', addNewRss);
+
+  // +++ for debug purpose
+  rssInput.value = 'http://lorem-rss.herokuapp.com/feed?unit=second&interval=30';
+  rssInput.dispatchEvent(new Event('input'));
+  // --- for debug purpose
 };
