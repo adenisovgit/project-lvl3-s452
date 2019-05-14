@@ -61,7 +61,7 @@ export function submitForm(state1, e) {
   }
 
   state.feeds.push({
-    feedURL, feedStatus: 'update', feedTitle: feedURL, feedDescription: feedURL, buildTime: 0,
+    feedURL, feedStatus: 'update', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
   });
   addRssNode(feedURL, state);
   state.inputFieldStatus = 'init';

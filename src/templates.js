@@ -4,6 +4,7 @@ export const feedTemplate = `<div class="card" id="cardTemplate">
     <span id="spinnerTemplate" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     <button id="rssheadbuttonTemplate" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTemplate" aria-expanded="true" aria-controls="collapseTemplate">
     </button>
+    <span class="badge badge-secondary"></span>
   </h5>
 </div>
 <div id="collapseTemplate" class="collapse pt-0 pb-3 pl-5 show" aria-labelledby="headingTemplate" data-parent="#feedsAccordion">
