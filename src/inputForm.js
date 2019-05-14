@@ -1,6 +1,13 @@
-function processRssAddress() {
-  console.log(this);
-  switch (state.inputFieldStatus) {
+import isURL from 'validator/lib/isURL';
+import { addRssNode } from './rssrender';
+
+export function processRssAddress() {
+  const rssInput = document.getElementById('rssInput');
+  const addRssButton = document.getElementById('rssInputButton');
+  const inputErrorMessage = document.getElementById('inputErrorMessage');
+  const rssInputForm = document.getElementById('rssInputForm');
+
+  switch (this.inputFieldStatus) {
     case 'init':
       rssInputForm.reset();
       break;
@@ -26,4 +33,36 @@ function processRssAddress() {
     default:
       throw new Error('Unexpected rssAddressState state.');
   }
+}
+
+export function validateRssAddress(state1, e) {
+  const state = state1;
+  if (isURL(e.target.value)) {
+    state.inputFieldStatus = state.feeds
+      .find(item => item.feedURL === e.target.value) ? 'feedAlreadyAdded' : 'ok';
+  } else if (e.target.value === '') {
+    state.inputFieldStatus = 'empty';
+  } else {
+    state.inputFieldStatus = 'badURL';
+  }
+}
+
+export function submitForm(state1, e) {
+  const state = state1;
+  e.preventDefault();
+  const feedURL = document.getElementById('rssInput').value;
+  if (feedURL === '') {
+    state.inputFieldStatus = 'empty';
+    return;
+  }
+
+  if (state.inputFieldStatus !== 'ok') {
+    return;
+  }
+
+  state.feeds.push({
+    feedURL, feedStatus: 'update', feedTitle: feedURL, feedDescription: feedURL, buildTime: 0,
+  });
+  addRssNode(feedURL, state);
+  state.inputFieldStatus = 'init';
 }
