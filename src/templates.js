@@ -1,6 +1,7 @@
 export const feedTemplate = `<div class="card" id="cardTemplate">
-<div class="card-header pt-1 pb-1 pl-0">
+<div class="card-header pt-1 pb-1 pl-4 ">
   <h5 class="mb-0">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     <button id="rssheadbuttonTemplate" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTemplate" aria-expanded="true" aria-controls="collapseTemplate">
     </button>
   </h5>

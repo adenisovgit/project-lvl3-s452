@@ -2,15 +2,13 @@ import '@babel/polyfill';
 import isURL from 'validator/lib/isURL';
 import watchJS from 'melanke-watchjs';
 import axios from 'axios';
-import dammit from 'dammit';
 import uniqueid from 'uniqueid';
 
 import { feedTemplate } from './templates';
+import getFeedURLCORS from './utils';
 
 
 export default () => {
-  const corsStr = 'https://cors-anywhere.herokuapp.com/';
-
   const state = {
     inputFieldStatus: 'init',
     feeds: [],
@@ -34,7 +32,8 @@ export default () => {
   const rssInputForm = document.getElementById('rssInputForm');
   const feedsAccordion = document.getElementById('feedsAccordion');
 
-  const checkRssAddress = () => {
+  function processRssAddress() {
+    console.log(this);
     switch (state.inputFieldStatus) {
       case 'init':
         rssInputForm.reset();
@@ -61,7 +60,7 @@ export default () => {
       default:
         throw new Error('Unexpected rssAddressState state.');
     }
-  };
+  }
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -76,39 +75,38 @@ export default () => {
     }
 
     state.feeds.push({
-      feedURL, feedStatus: 'update', feedName: '', feedDescription: '',
+      feedURL, feedStatus: 'update', feedTitle: feedURL, feedDescription: feedURL, buildTime: 0,
     });
     state.inputFieldStatus = 'init';
   };
 
   const updateRssFeed = (feedNumber) => {
-    const getFeedURL = `${corsStr}${state.feeds[feedNumber].feedURL}`;
-    axios.get('https://cors-anywhere.herokuapp.com/http://lorem-rss.herokuapp.com/feed')
+    const url = getFeedURLCORS(state.feeds[feedNumber].feedURL);
+    axios.get(url)
       .then((response) => {
+        //  !!!! обработать ошибки
         const parser = new DOMParser();
         const doc = parser.parseFromString(response.data, 'application/xml');
-        /*         alert(`!!!!!!response.data\n${response.data}`);
-        alert(`!!!!!!JSON.stringify(doc)\n${JSON.stringify(doc)}`); */
 
-        /*
-        doc.querySelectorAll('item').forEach((item) => {
-          const h1 = document.createElement('h1');
-          h1.textContent = item.querySelector('title').textContent;
-          document.querySelector('collapse1').children[0].appendChild(h1);
-        });
-        */
-        // Fake feed filling
-        state.feeds[feedNumber].feedName = dammit({ NSFW: false });
-        state.feeds[feedNumber].feedDescription = dammit({ NSFW: false });
-        for (let i = 0; i < Math.round(Math.random() * 4 + 1); i += 1) {
+        state.feeds[feedNumber].feedTitle = doc.querySelector('channel>title').textContent;
+        state.feeds[feedNumber].feedDescription = doc.querySelector('channel>description').textContent;
+        let timeArray = doc.querySelector('channel>lastBuildDate').textContent.split(/[ :]/);
+        state.feeds[feedNumber].feedTime = new Date(timeArray[3], timeArray[2], timeArray[1],
+          timeArray[4], timeArray[5], timeArray[6], 0);
+
+        doc.querySelectorAll('channel>item').forEach((item) => {
+          timeArray = item.querySelector('pubDate').textContent;
           state.articles.push({
             feedNumber,
             articleId: uniqueid(),
-            articleName: dammit({ NSFW: false }),
-            articleLink: `http://example.com/test/${Math.round(Math.random() * 10000)}`,
-            articleTime: Date.now(),
+            articleTitle: item.querySelector('title').textContent,
+            articleDescription: item.querySelector('description').textContent,
+            articleLink: item.querySelector('link').textContent,
+            articlePubDate: new Date(timeArray[3], timeArray[2], timeArray[1],
+              timeArray[4], timeArray[5], timeArray[6], 0),
           });
-        }
+        });
+
         state.feeds[feedNumber].feedStatus = 'render';
       });
   };
@@ -125,14 +123,16 @@ export default () => {
   const updateRssNode = (feedNumber) => {
     insertRssNodeIfNeeded(feedNumber);
     const feedTitle = document.getElementById(`rssheadbutton${feedNumber}`);
-    feedTitle.innerHTML = state.feeds[feedNumber].feedURL;
+    feedTitle.innerText = state.feeds[feedNumber].feedTitle;
     feedTitle.setAttribute('title', state.feeds[feedNumber].feedDescription);
     const ul = document.createElement('ul');
+    ul.classList.add('list-group');
     state.articles.filter(item => item.feedNumber === feedNumber).forEach((art) => {
       const li = document.createElement('li');
+      li.classList.add('list-group-item');
       const a = document.createElement('a');
-      a.innerHTML = art.articleName;
-      a.setAttribute('title', art.articleLink);
+      a.innerText = art.articleTitle;
+      a.setAttribute('title', art.articleDescription);
       a.setAttribute('href', art.articleLink);
       li.appendChild(a);
       ul.appendChild(li);
@@ -156,11 +156,11 @@ export default () => {
   rssInput.addEventListener('input', validateRssAddress);
   rssInputForm.addEventListener('submit', submitForm);
 
-  watchJS.watch(state, 'inputFieldStatus', checkRssAddress);
+  watchJS.watch(state, 'inputFieldStatus', processRssAddress);
   watchJS.watch(state, 'feeds', processFeeds);
 
   // +++ for debug purpose
-/*   rssInput.value = 'http://lorem-rss.herokuapp.com/feed?unit=second&interval=30';
-  rssInput.dispatchEvent(new Event('input')); */
+  rssInput.value = 'http://lorem-rss.herokuapp.com/feed';
+  rssInput.dispatchEvent(new Event('input'));
   // --- for debug purpose
 };
