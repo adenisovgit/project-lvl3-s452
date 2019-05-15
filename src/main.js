@@ -44,7 +44,7 @@ export default () => {
               articleTitle: item.querySelector('title').textContent,
               articleDescription: item.querySelector('description').textContent,
               articleLink: item.querySelector('link').textContent,
-              articlePubDate: new Date(item.querySelector('pubDate').textContent),
+              articlePubDate,
             });
           }
         });

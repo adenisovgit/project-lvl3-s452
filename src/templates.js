@@ -22,7 +22,7 @@ export const feedTemplate = `<div class="card" id="cardTemplate">
 
 export const articleTemplate = `<div class="row">
 <div class="col-10 my-auto" >
-  <a target="_blank" title="articleDescription_14052030" href="articleLink">articleTitle</a>        
+  <a target="_blank" title="articleLink" href="articleLink">articleTitle</a>        
 </div>
 <div class="col-2">
   <!-- Button trigger modal -->

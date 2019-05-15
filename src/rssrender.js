@@ -39,7 +39,6 @@ export const updateRssNode = (feedURL, state1) => {
         .replace(/articleDescription_14052030/g, art.articleDescription);
       const newArticleRow = document.createRange()
         .createContextualFragment(articleElemString);
-
       li.appendChild(newArticleRow);
       ul.appendChild(li);
     });
