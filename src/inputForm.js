@@ -1,5 +1,9 @@
 import isURL from 'validator/lib/isURL';
+import uniqueid from 'uniqueid';
 import { addRssNode } from './rssrender';
+
+
+const getNewFeedId = uniqueid();
 
 export function processRssAddress() {
   const rssInput = document.getElementById('rssInput');
@@ -63,8 +67,9 @@ export function submitForm(state1, e) {
   }
 
   state.feeds.push({
-    feedURL, feedStatus: 'update', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
+    feedId: getNewFeedId(), feedURL, feedStatus: 'update', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
   });
-  addRssNode(feedURL, state);
+
+  addRssNode(state.getFeedByURL(feedURL));
   state.inputFieldStatus = 'init';
 }

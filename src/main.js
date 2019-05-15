@@ -8,38 +8,41 @@ import { processRssAddress, validateRssAddress, submitForm } from './inputForm';
 import { updateRssNode, switchLoadingRssNode } from './rssrender';
 
 
+const getNewArticleId = uniqueid();
+
 export default () => {
   const state = {
     inputFieldStatus: 'init',
-    feeds: [],
+    feeds: [], // { feedId, feedURL, feedTitle, feedDescription, updateTime, feedError, feedStatus }
     articles: [],
     getFeedNumByURL(url) {
       return this.feeds.findIndex(item => item.feedURL === url);
+    },
+    getFeedByURL(url) {
+      return this.feeds[this.getFeedNumByURL(url)];
     },
     refreshTime: 0,
     refreshTimerID: 0,
   };
 
-  const uniqueId = uniqueid();
-
-  const updateRssFeed = (feedURL) => {
-    const feedNumber = state.getFeedNumByURL(feedURL);
-    const url = getFeedURLCORS(state.feeds[feedNumber].feedURL);
+  const updateRssFeed = (feed1) => {
+    const feed = feed1;
+    const url = getFeedURLCORS(feed.feedURL);
     axios.get(url)
       .then((response) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(response.data, 'application/xml');
-        const lastUpdateTime = state.feeds[feedNumber].updateTime;
-        state.feeds[feedNumber].feedTitle = doc.querySelector('channel>title').textContent;
-        state.feeds[feedNumber].feedDescription = doc.querySelector('channel>description').textContent;
-        state.feeds[feedNumber].updateTime = new Date();
-        state.feeds[feedNumber].feedError = '';
+        const lastUpdateTime = feed.updateTime;
+        feed.feedTitle = doc.querySelector('channel>title').textContent;
+        feed.feedDescription = doc.querySelector('channel>description').textContent;
+        feed.updateTime = new Date();
+        feed.feedError = '';
         doc.querySelectorAll('channel>item').forEach((item) => {
           const articlePubDate = new Date(item.querySelector('pubDate').textContent);
           if (articlePubDate > lastUpdateTime) {
-            const artid = uniqueId();
+            const artid = getNewArticleId();
             state.articles.push({
-              feedNumber,
+              feedId: feed.feedId,
               articleId: artid,
               articleTitle: item.querySelector('title').textContent,
               articleDescription: item.querySelector('description').textContent,
@@ -56,19 +59,19 @@ export default () => {
         } else if (e.name === 'TypeError') {
           errorText = 'Problem with processing content, possible this is not an RSS feed';
         } else errorText = 'Unknown error';
-        state.feeds[feedNumber].feedError = errorText;
+        feed.feedError = errorText;
       })
       .finally(() => {
-        state.feeds[feedNumber].feedStatus = 'render';
+        feed.feedStatus = 'render';
       });
   };
 
   function processFeeds() {
     const feedsToUpdate = state.feeds.filter(item => item.feedStatus === 'update');
-    feedsToUpdate.forEach(itemProc => updateRssFeed(itemProc.feedURL));
+    feedsToUpdate.forEach(updateRssFeed);
 
     const feedsToRender = state.feeds.filter(item => item.feedStatus === 'render');
-    feedsToRender.forEach(itemProc => updateRssNode(itemProc.feedURL, state));
+    feedsToRender.forEach(feed => updateRssNode(feed, state.articles));
   }
 
   const setRefreshTime = (e) => {
@@ -83,7 +86,7 @@ export default () => {
 
     refreshTimerID = setInterval(() => {
       state.feeds.forEach((item) => {
-        switchLoadingRssNode(item.feedURL, state, true);
+        switchLoadingRssNode(item, true);
           item.feedStatus = 'update'; //eslint-disable-line
       });
     }, state.refreshTime * 1000);

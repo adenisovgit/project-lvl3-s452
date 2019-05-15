@@ -1,33 +1,31 @@
 import { feedTemplate, articleTemplate } from './templates';
 
-export const switchLoadingRssNode = (feedURL, state1, onOff) => {
-  const state = state1;
-  const feedNumber = state.getFeedNumByURL(feedURL);
-  if (onOff) document.getElementById(`spinner${feedNumber}`).classList.remove('d-none');
-  else document.getElementById(`spinner${feedNumber}`).classList.add('d-none');
+export const switchLoadingRssNode = (feed1, onOff) => {
+  const feed = feed1;
+  if (onOff) document.getElementById(`spinner${feed.feedId}`).classList.remove('d-none');
+  else document.getElementById(`spinner${feed.feedId}`).classList.add('d-none');
 };
 
-export const updateRssNode = (feedURL, state1) => {
-  const state = state1;
-  const feedNumber = state.getFeedNumByURL(feedURL);
-  const feedTitle = document.getElementById(`rssheadbutton${feedNumber}`);
-  if (state.feeds[feedNumber].feedError === '') {
-    const errorMessageDiv = document.getElementById(`errorMessage${feedNumber}`);
+export const updateRssNode = (feed1, articles) => {
+  const feed = feed1;
+  const feedTitle = document.getElementById(`rssheadbutton${feed.feedId}`);
+  if (feed.feedError === '') {
+    const errorMessageDiv = document.getElementById(`errorMessage${feed.feedId}`);
     errorMessageDiv.classList.add('d-none');
     errorMessageDiv.innerText = '';
   } else {
-    const errorMessageDiv = document.getElementById(`errorMessage${feedNumber}`);
+    const errorMessageDiv = document.getElementById(`errorMessage${feed.feedId}`);
     errorMessageDiv.classList.remove('d-none');
-    errorMessageDiv.innerText = state.feeds[feedNumber].feedError;
+    errorMessageDiv.innerText = feed.feedError;
   }
-  feedTitle.innerText = state.feeds[feedNumber].feedTitle;
-  feedTitle.setAttribute('title', state.feeds[feedNumber].feedDescription);
-  document.getElementById(`card${feedNumber}`)
-    .querySelector('span.badge').innerText = state.articles
-      .filter(item => item.feedNumber === feedNumber).length;
+  feedTitle.innerText = feed.feedTitle;
+  feedTitle.setAttribute('title', feed.feedDescription);
+  document.getElementById(`card${feed.feedId}`)
+    .querySelector('span.badge').innerText = articles
+      .filter(item => item.feedId === feed.feedId).length;
   const ul = document.createElement('ul');
   ul.classList.add('list-group');
-  state.articles.filter(item => item.feedNumber === feedNumber)
+  articles.filter(item => item.feedId === feed.feedId)
     .sort((a, b) => b.articlePubDate - a.articlePubDate)
     .forEach((art) => {
       const li = document.createElement('li');
@@ -42,21 +40,22 @@ export const updateRssNode = (feedURL, state1) => {
       li.appendChild(newArticleRow);
       ul.appendChild(li);
     });
-  const feedBody = document.getElementById(`cardbody${feedNumber}`);
+  const feedBody = document.getElementById(`cardbody${feed.feedId}`);
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);
-  switchLoadingRssNode(feedURL, state, false);
-  state.feeds[feedNumber].feedStatus = 'ok';
+  switchLoadingRssNode(feed, false);
+  feed.feedStatus = 'ok';
 };
 
-export const addRssNode = (feedURL, state) => { //eslint-disable-line
-  const feedNumber = state.getFeedNumByURL(feedURL);
+export const addRssNode = (feed1) => {
+  const feed = feed1;
+
   const newCard = document.createRange()
-    .createContextualFragment(feedTemplate.replace(/template/gi, feedNumber));
+    .createContextualFragment(feedTemplate.replace(/template/gi, feed.feedId));
   const feedsAccordion = document.getElementById('feedsAccordion');
   const toRemoveShow = feedsAccordion.querySelector('.collapse.show');
   if (toRemoveShow) toRemoveShow.classList.remove('show');
   feedsAccordion.appendChild(newCard);
-  document.getElementById(`rssheadbutton${feedNumber}`)
-    .innerText = state.feeds[feedNumber].feedTitle;
+  document.getElementById(`rssheadbutton${feed.feedId}`)
+    .innerText = feed.feedTitle;
 };
