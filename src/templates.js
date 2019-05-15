@@ -1,11 +1,18 @@
 export const feedTemplate = `<div class="card" id="cardTemplate">
 <div class="card-header pt-1 pb-1 pl-4 ">
-  <h5 class="mb-0">
-    <button id="rssheadbuttonTemplate" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTemplate" aria-expanded="true" aria-controls="collapseTemplate">
-    </button>
-    <span class="badge badge-secondary"></span>
-    <span id="spinnerTemplate" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-  </h5>
+  <div class="row align-items-center">
+    <div class="col-6 my-auto" >
+      <h5 class="mb-0">
+        <button id="rssheadbuttonTemplate" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTemplate" aria-expanded="true" aria-controls="collapseTemplate">
+        </button>
+        <span class="badge badge-secondary"></span>
+        <span id="spinnerTemplate" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      </h5>
+    </div>
+    <div class="col-6 my-auto">
+      <div id="errorMessageTemplate" class="alert alert-danger my-auto d-none" role="alert"></div>
+    </div>
+  </div>
 </div>
 <div id="collapseTemplate" class="collapse pt-0 pb-3 pl-5 show" aria-labelledby="headingTemplate" data-parent="#feedsAccordion">
   <div class="card-body pt-0 pl-0" id="cardbodyTemplate">

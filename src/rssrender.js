@@ -11,6 +11,15 @@ export const updateRssNode = (feedURL, state1) => {
   const state = state1;
   const feedNumber = state.getFeedNumByURL(feedURL);
   const feedTitle = document.getElementById(`rssheadbutton${feedNumber}`);
+  if (state.feeds[feedNumber].feedError === '') {
+    const errorMessageDiv = document.getElementById(`errorMessage${feedNumber}`);
+    errorMessageDiv.classList.add('d-none');
+    errorMessageDiv.innerText = '';
+  } else {
+    const errorMessageDiv = document.getElementById(`errorMessage${feedNumber}`);
+    errorMessageDiv.classList.remove('d-none');
+    errorMessageDiv.innerText = state.feeds[feedNumber].feedError;
+  }
   feedTitle.innerText = state.feeds[feedNumber].feedTitle;
   feedTitle.setAttribute('title', state.feeds[feedNumber].feedDescription);
   document.getElementById(`card${feedNumber}`)

@@ -27,13 +27,13 @@ export default () => {
     const url = getFeedURLCORS(state.feeds[feedNumber].feedURL);
     axios.get(url)
       .then((response) => {
-        //  !!!! обработать ошибки
         const parser = new DOMParser();
         const doc = parser.parseFromString(response.data, 'application/xml');
         const lastUpdateTime = state.feeds[feedNumber].updateTime;
         state.feeds[feedNumber].feedTitle = doc.querySelector('channel>title').textContent;
         state.feeds[feedNumber].feedDescription = doc.querySelector('channel>description').textContent;
         state.feeds[feedNumber].updateTime = new Date();
+        state.feeds[feedNumber].feedError = '';
         doc.querySelectorAll('channel>item').forEach((item) => {
           const articlePubDate = new Date(item.querySelector('pubDate').textContent);
           if (articlePubDate > lastUpdateTime) {
@@ -48,20 +48,22 @@ export default () => {
             });
           }
         });
-
-        state.feeds[feedNumber].feedStatus = 'render';
       })
-      .catch(
-        console.log,
-        /* Failed to load resource: the server responded with a status of 404 (Not Found)
-createError.js:16 Uncaught (in promise) Error: Request failed with status code 404
-    at createError (createError.js:16)
-    at settle (settle.js:18)
-    at XMLHttpRequest.handleLoad (xhr.js:77)
-
-main.js:42 Uncaught (in promise) TypeError: Cannot read property 'textContent' of null
-    at eval (main.js:42)    */
-      );
+      .catch((e) => {
+        if (e.message === 'Network Error') {
+          state.feeds[feedNumber].feedError = 'Problem with loading content';
+          return;
+        }
+        if (e.name === 'TypeError') {
+          state.feeds[feedNumber]
+            .feedError = 'Problem with processing content, possible this is not an RSS feed';
+          return;
+        }
+        state.feeds[feedNumber].feedError = 'Unknown error';
+      })
+      .finally(() => {
+        state.feeds[feedNumber].feedStatus = 'render';
+      });
   };
 
   function processFeeds() {
