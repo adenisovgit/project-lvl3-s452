@@ -54,11 +54,13 @@
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
     "axios": "^0.18.0",
-    "uniqueid": "^1.0.0",
     "bootstrap": "^4.3.1",
+    "css-loader": "^2.1.1",
     "jquery": "^3.4.1",
     "melanke-watchjs": "^1.5.0",
     "popper.js": "^1.15.0",
+    "style-loader": "^0.23.1",
+    "uniqueid": "^1.0.0",
     "validator": "^10.11.0"
   }
 }

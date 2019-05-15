@@ -1,5 +1,6 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import main from './main';
 import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
+document.querySelector('body').removeAttribute('style'); // to prevent page w/o styles
 main();

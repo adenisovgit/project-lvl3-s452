@@ -50,16 +50,13 @@ export default () => {
         });
       })
       .catch((e) => {
+        let errorText;
         if (e.message === 'Network Error') {
-          state.feeds[feedNumber].feedError = 'Problem with loading content';
-          return;
-        }
-        if (e.name === 'TypeError') {
-          state.feeds[feedNumber]
-            .feedError = 'Problem with processing content, possible this is not an RSS feed';
-          return;
-        }
-        state.feeds[feedNumber].feedError = 'Unknown error';
+          errorText = 'Problem with loading content';
+        } else if (e.name === 'TypeError') {
+          errorText = 'Problem with processing content, possible this is not an RSS feed';
+        } else errorText = 'Unknown error';
+        state.feeds[feedNumber].feedError = errorText;
       })
       .finally(() => {
         state.feeds[feedNumber].feedStatus = 'render';
