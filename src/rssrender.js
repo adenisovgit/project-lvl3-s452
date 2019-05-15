@@ -18,20 +18,22 @@ export const updateRssNode = (feedURL, state1) => {
       .filter(item => item.feedNumber === feedNumber).length;
   const ul = document.createElement('ul');
   ul.classList.add('list-group');
-  state.articles.filter(item => item.feedNumber === feedNumber).forEach((art) => {
-    const li = document.createElement('li');
-    li.classList.add('list-group-item');
-    const articleElemString = articleTemplate
-      .replace(/articleModal/g, `articleModal${art.articleId}`)
-      .replace(/articleLink/g, art.articleLink)
-      .replace(/articleTitle/g, art.articleTitle)
-      .replace(/articleDescription_14052030/g, art.articleDescription);
-    const newArticleRow = document.createRange()
-      .createContextualFragment(articleElemString);
+  state.articles.filter(item => item.feedNumber === feedNumber)
+    .sort((a, b) => b.articlePubDate - a.articlePubDate)
+    .forEach((art) => {
+      const li = document.createElement('li');
+      li.classList.add('list-group-item');
+      const articleElemString = articleTemplate
+        .replace(/articleModal/g, `articleModal${art.articleId}`)
+        .replace(/articleLink/g, art.articleLink)
+        .replace(/articleTitle/g, art.articleTitle)
+        .replace(/articleDescription_14052030/g, art.articleDescription);
+      const newArticleRow = document.createRange()
+        .createContextualFragment(articleElemString);
 
-    li.appendChild(newArticleRow);
-    ul.appendChild(li);
-  });
+      li.appendChild(newArticleRow);
+      ul.appendChild(li);
+    });
   const feedBody = document.getElementById(`cardbody${feedNumber}`);
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);

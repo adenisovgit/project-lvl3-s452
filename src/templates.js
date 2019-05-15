@@ -1,10 +1,10 @@
 export const feedTemplate = `<div class="card" id="cardTemplate">
 <div class="card-header pt-1 pb-1 pl-4 ">
   <h5 class="mb-0">
-    <span id="spinnerTemplate" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     <button id="rssheadbuttonTemplate" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTemplate" aria-expanded="true" aria-controls="collapseTemplate">
     </button>
     <span class="badge badge-secondary"></span>
+    <span id="spinnerTemplate" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
   </h5>
 </div>
 <div id="collapseTemplate" class="collapse pt-0 pb-3 pl-5 show" aria-labelledby="headingTemplate" data-parent="#feedsAccordion">
@@ -19,7 +19,7 @@ export const articleTemplate = `<div class="row">
 </div>
 <div class="col-2">
   <!-- Button trigger modal -->
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#articleModal">Description</button>
+  <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#articleModal">Description</button>
   <!-- Modal -->
   <div class="modal fade" id="articleModal" tabindex="-1" role="dialog" aria-labelledby="articleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">

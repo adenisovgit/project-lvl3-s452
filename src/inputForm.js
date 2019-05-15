@@ -5,11 +5,13 @@ export function processRssAddress() {
   const rssInput = document.getElementById('rssInput');
   const addRssButton = document.getElementById('rssInputButton');
   const inputErrorMessage = document.getElementById('inputErrorMessage');
-  const rssInputForm = document.getElementById('rssInputForm');
 
   switch (this.inputFieldStatus) {
     case 'init':
-      rssInputForm.reset();
+      rssInput.classList.remove('is-invalid');
+      rssInput.value = '';
+      addRssButton.disabled = false;
+      // rssInputForm.reset(); - cant'use this, to prevent init of refreshTimeSelect
       break;
     case 'ok':
       rssInput.classList.remove('is-invalid');
