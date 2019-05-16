@@ -9,22 +9,25 @@ export const switchLoadingRssNode = (feed1, onOff) => {
 export const updateRssNode = (feed1, articles) => {
   const feed = feed1;
   const feedTitle = document.getElementById(`rssheadbutton${feed.feedId}`);
+
+  const errorMessageDiv = document.getElementById(`errorMessage${feed.feedId}`);
+  errorMessageDiv.innerText = feed.feedError;
+
   if (feed.feedError === '') {
-    const errorMessageDiv = document.getElementById(`errorMessage${feed.feedId}`);
     errorMessageDiv.classList.add('d-none');
-    errorMessageDiv.innerText = '';
   } else {
-    const errorMessageDiv = document.getElementById(`errorMessage${feed.feedId}`);
     errorMessageDiv.classList.remove('d-none');
-    errorMessageDiv.innerText = feed.feedError;
   }
+
   feedTitle.innerText = feed.feedTitle;
   feedTitle.setAttribute('title', feed.feedDescription);
   document.getElementById(`card${feed.feedId}`)
     .querySelector('span.badge').innerText = articles
       .filter(item => item.feedId === feed.feedId).length;
+
   const ul = document.createElement('ul');
   ul.classList.add('list-group');
+
   articles.filter(item => item.feedId === feed.feedId)
     .sort((a, b) => b.articlePubDate - a.articlePubDate)
     .forEach((art) => {
@@ -44,7 +47,6 @@ export const updateRssNode = (feed1, articles) => {
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);
   switchLoadingRssNode(feed, false);
-  feed.feedStatus = 'ok';
 };
 
 export const addRssNode = (feed1) => {

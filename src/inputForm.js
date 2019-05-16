@@ -21,6 +21,11 @@ export function processRssAddress() {
       rssInput.classList.remove('is-invalid');
       addRssButton.disabled = false;
       break;
+    case 'feedInitFail':
+      rssInput.classList.add('is-invalid');
+      inputErrorMessage.innerHTML = 'Can\'t load or parse feed data. Please, check the URL and try again';
+      addRssButton.disabled = false;
+      break;
     case 'empty':
       rssInput.classList.add('is-invalid');
       inputErrorMessage.innerHTML = 'Please, enter valid RSS feed address.';
@@ -34,6 +39,10 @@ export function processRssAddress() {
     case 'feedAlreadyAdded':
       rssInput.classList.add('is-invalid');
       inputErrorMessage.innerHTML = 'RSS feed already added.';
+      addRssButton.disabled = true;
+      break;
+    case 'feedInitialization':
+      rssInput.classList.remove('is-invalid');
       addRssButton.disabled = true;
       break;
     default:
@@ -62,14 +71,14 @@ export function submitForm(state1, e) {
     return;
   }
 
-  if (state.inputFieldStatus !== 'ok') {
+  if (!['ok', 'feedInitFail'].includes(state.inputFieldStatus)) {
     return;
   }
 
   state.feeds.push({
-    feedId: getNewFeedId(), feedURL, feedStatus: 'update', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
+    feedId: getNewFeedId(), feedURL, feedStatus: 'init', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
   });
 
   addRssNode(state.getFeedByURL(feedURL));
-  state.inputFieldStatus = 'init';
+  state.inputFieldStatus = 'feedInitialization';
 }

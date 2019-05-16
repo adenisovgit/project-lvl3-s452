@@ -51,27 +51,40 @@ export default () => {
             });
           }
         });
+        feed.feedStatus = 'render';
+        if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'init';
       })
       .catch((e) => {
         let errorText;
         if (e.message === 'Network Error') {
           errorText = 'Problem with loading content';
         } else if (e.name === 'TypeError') {
-          errorText = 'Problem with processing content, possible this is not an RSS feed';
+          errorText = 'Problem with parsing content';
         } else errorText = 'Unknown error';
         feed.feedError = errorText;
-      })
-      .finally(() => {
-        feed.feedStatus = 'render';
+        if (feed.feedStatus === 'init') {
+          feed.feedStatus = 'remove';
+          state.inputFieldStatus = 'feedInitFail';
+        }
       });
+  };
+  const deleteFeedDataAndNode = (feed) => {
+    document.getElementById(`card${feed.feedId}`).remove();
+    state.feeds.splice(state.getFeedNumByURL(feed.feedURL), 1);
   };
 
   function processFeeds() {
-    const feedsToUpdate = state.feeds.filter(item => item.feedStatus === 'update');
+    const feedsToUpdate = state.feeds.filter(item => (item.feedStatus === 'update') || (item.feedStatus === 'init'));
     feedsToUpdate.forEach(updateRssFeed);
 
     const feedsToRender = state.feeds.filter(item => item.feedStatus === 'render');
-    feedsToRender.forEach(feed => updateRssNode(feed, state.articles));
+    feedsToRender.forEach((feed) => {
+      updateRssNode(feed, state.articles);
+      feed.feedStatus = 'ok'; // eslint-disable-line
+    });
+
+    const feedsToDelete = state.feeds.filter(item => item.feedStatus === 'remove');
+    feedsToDelete.forEach(deleteFeedDataAndNode);
   }
 
   const setRefreshTime = (e) => {
