@@ -11,7 +11,7 @@ export function processRssAddress() {
   const inputErrorMessage = document.getElementById('inputErrorMessage');
 
   switch (this.inputFieldStatus) {
-    case 'init':
+    case 'initial':
       rssInput.classList.remove('is-invalid');
       rssInput.value = '';
       addRssButton.disabled = false;
@@ -76,7 +76,7 @@ export function submitForm(state1, e) {
   }
 
   state.feeds.push({
-    feedId: getNewFeedId(), feedURL, feedStatus: 'init', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
+    feedId: getNewFeedId(), feedURL, feedStatus: 'toinit', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
   });
 
   addRssNode(state.getFeedByURL(feedURL));

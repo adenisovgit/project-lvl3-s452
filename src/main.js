@@ -1,18 +1,15 @@
 import '@babel/polyfill';
 import watchJS from 'melanke-watchjs';
 import axios from 'axios';
-import uniqueid from 'uniqueid';
 
 import getFeedURLCORS from './utils';
 import { processRssAddress, validateRssAddress, submitForm } from './inputForm';
 import { updateRssNode, switchLoadingRssNode } from './rssrender';
-
-
-const getNewArticleId = uniqueid();
+import feedDataParser from './parser';
 
 export default () => {
   const state = {
-    inputFieldStatus: 'init',
+    inputFieldStatus: 'initial',
     feeds: [], // { feedId, feedURL, feedTitle, feedDescription, updateTime, feedError, feedStatus }
     articles: [],
     getFeedNumByURL(url) {
@@ -22,7 +19,6 @@ export default () => {
       return this.feeds[this.getFeedNumByURL(url)];
     },
     refreshTime: 0,
-    refreshTimerID: 0,
   };
 
   const updateRssFeed = (feed1) => {
@@ -30,62 +26,50 @@ export default () => {
     const url = getFeedURLCORS(feed.feedURL);
     axios.get(url)
       .then((response) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(response.data, 'application/xml');
-        const lastUpdateTime = feed.updateTime;
-        feed.feedTitle = doc.querySelector('channel>title').textContent;
-        feed.feedDescription = doc.querySelector('channel>description').textContent;
+        const parsedData = feedDataParser(response.data, feed.feedId, feed.updateTime);
+        feed.feedTitle = parsedData.feed.feedTitle;
+        feed.feedDescription = parsedData.feed.feedDescription;
         feed.updateTime = new Date();
         feed.feedError = '';
-        doc.querySelectorAll('channel>item').forEach((item) => {
-          const articlePubDate = new Date(item.querySelector('pubDate').textContent);
-          if (articlePubDate > lastUpdateTime) {
-            const artid = getNewArticleId();
-            state.articles.push({
-              feedId: feed.feedId,
-              articleId: artid,
-              articleTitle: item.querySelector('title').textContent,
-              articleDescription: item.querySelector('description').textContent,
-              articleLink: item.querySelector('link').textContent,
-              articlePubDate,
-            });
-          }
-        });
-        feed.feedStatus = 'render';
-        if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'init';
+        state.articles.push(...parsedData.articles);
+
+        feed.feedStatus = 'torender';
+        if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'initial';
       })
       .catch((e) => {
         let errorText;
+        console.log(e, '!!', e.message, '!!', e.name);
         if (e.message === 'Network Error') {
           errorText = 'Problem with loading content';
         } else if (e.name === 'TypeError') {
           errorText = 'Problem with parsing content';
         } else errorText = 'Unknown error';
         feed.feedError = errorText;
-        if (feed.feedStatus === 'init') {
-          feed.feedStatus = 'remove';
+        if (feed.feedStatus === 'toinit') {
+          feed.feedStatus = 'toremove';
           state.inputFieldStatus = 'feedInitFail';
         }
       });
   };
+
   const deleteFeedDataAndNode = (feed) => {
     document.getElementById(`card${feed.feedId}`).remove();
     state.feeds.splice(state.getFeedNumByURL(feed.feedURL), 1);
   };
 
-  function processFeeds() {
-    const feedsToUpdate = state.feeds.filter(item => (item.feedStatus === 'update') || (item.feedStatus === 'init'));
+  const processFeeds = () => {
+    const feedsToUpdate = state.feeds.filter(item => (item.feedStatus === 'toupdate') || (item.feedStatus === 'toinit'));
     feedsToUpdate.forEach(updateRssFeed);
 
-    const feedsToRender = state.feeds.filter(item => item.feedStatus === 'render');
+    const feedsToRender = state.feeds.filter(item => item.feedStatus === 'torender');
     feedsToRender.forEach((feed) => {
       updateRssNode(feed, state.articles);
       feed.feedStatus = 'ok'; // eslint-disable-line
     });
 
-    const feedsToDelete = state.feeds.filter(item => item.feedStatus === 'remove');
+    const feedsToDelete = state.feeds.filter(item => item.feedStatus === 'toremove');
     feedsToDelete.forEach(deleteFeedDataAndNode);
-  }
+  };
 
   const setRefreshTime = (e) => {
     state.refreshTime = Number(e.target.value);
@@ -93,16 +77,16 @@ export default () => {
 
   let refreshTimerID = 0;
 
-  const processRefreshTime = () => {
+  const autoRefresh = () => {
     clearInterval(refreshTimerID);
     if (state.refreshTime === 0) return;
 
-    refreshTimerID = setInterval(() => {
-      state.feeds.forEach((item) => {
-        switchLoadingRssNode(item, true);
-          item.feedStatus = 'update'; //eslint-disable-line
-      });
-    }, state.refreshTime * 1000);
+    refreshTimerID = setTimeout(autoRefresh, state.refreshTime * 1000);
+
+    state.feeds.forEach((item) => {
+      switchLoadingRssNode(item, true);
+          item.feedStatus = 'toupdate'; //eslint-disable-line
+    });
   };
 
   document.getElementById('rssInput')
@@ -114,8 +98,5 @@ export default () => {
 
   watchJS.watch(state, 'inputFieldStatus', processRssAddress);
   watchJS.watch(state, 'feeds', processFeeds);
-  watchJS.watch(state, 'refreshTime', processRefreshTime);
-
-  /* document.getElementById('rssInput').value = 'https://bash.im/rss/';
-  document.getElementById('rssInput').dispatchEvent(new Event('input')); */
+  watchJS.watch(state, 'refreshTime', autoRefresh);
 };
