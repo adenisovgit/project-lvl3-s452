@@ -40,15 +40,15 @@ export default () => {
         feed.feedError = '';
         state.articles.push(...parsedData.articles);
 
-        feed.feedStatus = 'torender';
+        feed.feedStatus = 'updated';
         if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'initial';
       })
       .catch((e) => {
         const errorText = i18next.t([e.message, e.name], 'Unknown error');
         feed.feedError = errorText;
 
-        if (feed.feedStatus === 'toinit') {
-          feed.feedStatus = 'toremove';
+        if (feed.feedStatus === 'added') {
+          feed.feedStatus = 'failed';
           state.inputFieldStatus = 'feedInitFail';
         }
       });
@@ -60,16 +60,14 @@ export default () => {
   };
 
   const processFeeds = () => {
-    const feedsToUpdate = state.feeds.filter(item => (item.feedStatus === 'toupdate') || (item.feedStatus === 'toinit'));
+    const feedsToUpdate = state.feeds.filter(item => (item.feedStatus === 'updating')
+      || (item.feedStatus === 'added'));
     feedsToUpdate.forEach(updateRssFeed);
 
-    const feedsToRender = state.feeds.filter(item => item.feedStatus === 'torender');
-    feedsToRender.forEach((feed) => {
-      updateRssNode(feed, state.articles);
-      feed.feedStatus = 'ok'; // eslint-disable-line
-    });
+    const feedsToRender = state.feeds.filter(item => item.feedStatus === 'updated');
+    feedsToRender.forEach(feed => updateRssNode(feed, state.articles));
 
-    const feedsToDelete = state.feeds.filter(item => item.feedStatus === 'toremove');
+    const feedsToDelete = state.feeds.filter(item => item.feedStatus === 'failed');
     feedsToDelete.forEach(deleteFeedDataAndNode);
   };
 
@@ -87,7 +85,7 @@ export default () => {
 
     state.feeds.forEach((item) => {
       switchLoadingRssNode(item, true);
-          item.feedStatus = 'toupdate'; //eslint-disable-line
+          item.feedStatus = 'updating'; //eslint-disable-line
     });
   };
 

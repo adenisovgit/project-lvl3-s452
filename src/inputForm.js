@@ -75,7 +75,7 @@ export const submitForm = (state1, e) => {
   }
 
   state.feeds.push({
-    feedId: getNewFeedId(), feedURL, feedStatus: 'toinit', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
+    feedId: getNewFeedId(), feedURL, feedStatus: 'added', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
   });
 
   addRssNode(state.getFeedByURL(feedURL));

@@ -46,6 +46,7 @@ export const updateRssNode = (feed1, articles) => {
   const feedBody = document.getElementById(`cardbody${feed.feedId}`);
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);
+  feed.feedStatus = 'ok';
   switchLoadingRssNode(feed, false);
 };
 
