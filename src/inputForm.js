@@ -49,11 +49,11 @@ export function processRssAddress() {
   }
 }
 
-export const validateRssAddress = (state1, e) => {
+export const processInputString = (state1, e) => {
   const state = state1;
   if (isURL(e.target.value)) {
     state.inputFieldStatus = state.feeds
-      .find(item => item.feedURL === e.target.value) ? 'feedAlreadyAdded' : 'ok';
+      .find(item => item.url === e.target.value) ? 'feedAlreadyAdded' : 'ok';
   } else if (e.target.value === '') {
     state.inputFieldStatus = 'empty';
   } else {
@@ -64,8 +64,8 @@ export const validateRssAddress = (state1, e) => {
 export const submitForm = (state1, e) => {
   const state = state1;
   e.preventDefault();
-  const feedURL = document.getElementById('rssInput').value;
-  if (feedURL === '') {
+  const url = document.getElementById('rssInput').value;
+  if (url === '') {
     state.inputFieldStatus = 'empty';
     return;
   }
@@ -75,9 +75,9 @@ export const submitForm = (state1, e) => {
   }
 
   state.feeds.push({
-    feedId: getNewFeedId(), feedURL, feedStatus: 'added', feedTitle: feedURL, feedDescription: feedURL, updateTime: 0,
+    id: getNewFeedId(), url, status: 'added', title: url, description: url, updateTime: 0, error: '',
   });
 
-  addRssNode(state.getFeedByURL(feedURL));
+  addRssNode(state.getFeedByURL(url));
   state.inputFieldStatus = 'feedInitialization';
 };

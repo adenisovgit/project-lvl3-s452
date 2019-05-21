@@ -8,21 +8,19 @@ export default (rawData, feedId, lastUpdateTime) => {
 
   const feedData = { feed: {}, articles: [] };
 
-  feedData.feed.feedTitle = doc.querySelector('channel>title').textContent;
-  feedData.feed.feedDescription = doc.querySelector('channel>description').textContent;
+  feedData.feed.title = doc.querySelector('channel>title').textContent;
+  feedData.feed.description = doc.querySelector('channel>description').textContent;
   feedData.feed.updateTime = new Date();
-  feedData.feed.feedError = '';
   doc.querySelectorAll('channel>item').forEach((item) => {
-    const articlePubDate = new Date(item.querySelector('pubDate').textContent);
-    if (articlePubDate > lastUpdateTime) {
-      const artid = getNewArticleId();
+    const pubDate = new Date(item.querySelector('pubDate').textContent);
+    if (pubDate > lastUpdateTime) {
       feedData.articles.push({
         feedId,
-        articleId: artid,
-        articleTitle: item.querySelector('title').textContent,
-        articleDescription: item.querySelector('description').textContent,
-        articleLink: item.querySelector('link').textContent,
-        articlePubDate,
+        id: getNewArticleId(),
+        title: item.querySelector('title').textContent,
+        description: item.querySelector('description').textContent,
+        link: item.querySelector('link').textContent,
+        pubDate,
       });
     }
   });

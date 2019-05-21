@@ -21,8 +21,11 @@ export const feedTemplate = `<div class="card" id="cardTemplate">
 </div>`;
 
 export const articleTemplate = `<div class="row">
-<div class="col-10 my-auto" >
+<div class="col-8 my-auto" >
   <a target="_blank" title="articleLink" href="articleLink">articleTitle</a>        
+</div>
+<div class="col-2 my-auto" >
+  articlePubDate       
 </div>
 <div class="col-2">
   <!-- Button trigger modal -->

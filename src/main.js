@@ -4,17 +4,17 @@ import axios from 'axios';
 import i18next from 'i18next';
 
 import { getFeedURLCORS, errorTransition } from './utils';
-import { processRssAddress, validateRssAddress, submitForm } from './inputForm';
+import { processRssAddress, processInputString, submitForm } from './inputForm';
 import { updateRssNode, switchLoadingRssNode } from './rssrender';
-import feedDataParser from './parser';
+import parseFeedData from './parser';
 
 export default () => {
   const state = {
     inputFieldStatus: 'initial',
-    feeds: [], // { feedId, feedURL, feedTitle, feedDescription, updateTime, feedError, feedStatus }
+    feeds: [],
     articles: [],
     getFeedNumByURL(url) {
-      return this.feeds.findIndex(item => item.feedURL === url);
+      return this.feeds.findIndex(item => item.url === url);
     },
     getFeedByURL(url) {
       return this.feeds[this.getFeedNumByURL(url)];
@@ -22,7 +22,7 @@ export default () => {
     refreshTime: 0,
   };
 
-  i18next.init({ debug: false }, (err, t) => {
+  i18next.init({ debug: false }, (err) => {
     if (err) return console.log('something went wrong loading', err);
   }).then(() => {
     i18next.addResourceBundle('dev', 'translation', errorTransition);
@@ -30,44 +30,43 @@ export default () => {
 
   const updateRssFeed = (feed1) => {
     const feed = feed1;
-    const url = getFeedURLCORS(feed.feedURL);
+    const url = getFeedURLCORS(feed.url);
     axios.get(url)
       .then((response) => {
-        const parsedData = feedDataParser(response.data, feed.feedId, feed.updateTime);
-        feed.feedTitle = parsedData.feed.feedTitle;
-        feed.feedDescription = parsedData.feed.feedDescription;
+        const parsedData = parseFeedData(response.data, feed.id, feed.updateTime);
+        feed.title = parsedData.feed.title;
+        feed.description = parsedData.feed.description;
         feed.updateTime = new Date();
-        feed.feedError = '';
+        feed.error = '';
         state.articles.push(...parsedData.articles);
 
-        feed.feedStatus = 'updated';
+        feed.status = 'updated';
         if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'initial';
       })
       .catch((e) => {
         const errorText = i18next.t([e.message, e.name], 'Unknown error');
-        feed.feedError = errorText;
+        feed.error = errorText;
 
-        if (feed.feedStatus === 'added') {
-          feed.feedStatus = 'failed';
+        if (feed.status === 'added') {
+          feed.status = 'failed';
           state.inputFieldStatus = 'feedInitFail';
         }
       });
   };
 
   const deleteFeedDataAndNode = (feed) => {
-    document.getElementById(`card${feed.feedId}`).remove();
-    state.feeds.splice(state.getFeedNumByURL(feed.feedURL), 1);
+    document.getElementById(`card${feed.id}`).remove();
+    state.feeds.splice(state.getFeedNumByURL(feed.url), 1);
   };
 
   const processFeeds = () => {
-    const feedsToUpdate = state.feeds.filter(item => (item.feedStatus === 'updating')
-      || (item.feedStatus === 'added'));
+    const feedsToUpdate = state.feeds.filter(item => ['updating', 'added'].includes(item.status));
     feedsToUpdate.forEach(updateRssFeed);
 
-    const feedsToRender = state.feeds.filter(item => item.feedStatus === 'updated');
+    const feedsToRender = state.feeds.filter(item => item.status === 'updated');
     feedsToRender.forEach(feed => updateRssNode(feed, state.articles));
 
-    const feedsToDelete = state.feeds.filter(item => item.feedStatus === 'failed');
+    const feedsToDelete = state.feeds.filter(item => item.status === 'failed');
     feedsToDelete.forEach(deleteFeedDataAndNode);
   };
 
@@ -85,12 +84,12 @@ export default () => {
 
     state.feeds.forEach((item) => {
       switchLoadingRssNode(item, true);
-          item.feedStatus = 'updating'; //eslint-disable-line
+          item.status = 'updating'; //eslint-disable-line
     });
   };
 
   document.getElementById('rssInput')
-    .addEventListener('input', validateRssAddress.bind(null, state));
+    .addEventListener('input', processInputString.bind(null, state));
   document.getElementById('rssInputForm')
     .addEventListener('submit', submitForm.bind(null, state));
   document.getElementById('refreshTimeSelect')
