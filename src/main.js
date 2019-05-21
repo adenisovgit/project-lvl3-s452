@@ -1,8 +1,9 @@
 import '@babel/polyfill';
 import watchJS from 'melanke-watchjs';
 import axios from 'axios';
+import i18next from 'i18next';
 
-import getFeedURLCORS from './utils';
+import { getFeedURLCORS, errorTransition } from './utils';
 import { processRssAddress, validateRssAddress, submitForm } from './inputForm';
 import { updateRssNode, switchLoadingRssNode } from './rssrender';
 import feedDataParser from './parser';
@@ -21,6 +22,12 @@ export default () => {
     refreshTime: 0,
   };
 
+  i18next.init({ debug: false }, (err, t) => {
+    if (err) return console.log('something went wrong loading', err);
+  }).then(() => {
+    i18next.addResourceBundle('dev', 'translation', errorTransition);
+  });
+
   const updateRssFeed = (feed1) => {
     const feed = feed1;
     const url = getFeedURLCORS(feed.feedURL);
@@ -37,14 +44,9 @@ export default () => {
         if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'initial';
       })
       .catch((e) => {
-        let errorText;
-        console.log(e, '!!', e.message, '!!', e.name);
-        if (e.message === 'Network Error') {
-          errorText = 'Problem with loading content';
-        } else if (e.name === 'TypeError') {
-          errorText = 'Problem with parsing content';
-        } else errorText = 'Unknown error';
+        const errorText = i18next.t([e.message, e.name], 'Unknown error');
         feed.feedError = errorText;
+
         if (feed.feedStatus === 'toinit') {
           feed.feedStatus = 'toremove';
           state.inputFieldStatus = 'feedInitFail';

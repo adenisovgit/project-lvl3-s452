@@ -15,7 +15,6 @@ export function processRssAddress() {
       rssInput.classList.remove('is-invalid');
       rssInput.value = '';
       addRssButton.disabled = false;
-      // rssInputForm.reset(); - cant'use this, to prevent init of refreshTimeSelect
       break;
     case 'ok':
       rssInput.classList.remove('is-invalid');
@@ -50,7 +49,7 @@ export function processRssAddress() {
   }
 }
 
-export function validateRssAddress(state1, e) {
+export const validateRssAddress = (state1, e) => {
   const state = state1;
   if (isURL(e.target.value)) {
     state.inputFieldStatus = state.feeds
@@ -60,9 +59,9 @@ export function validateRssAddress(state1, e) {
   } else {
     state.inputFieldStatus = 'badURL';
   }
-}
+};
 
-export function submitForm(state1, e) {
+export const submitForm = (state1, e) => {
   const state = state1;
   e.preventDefault();
   const feedURL = document.getElementById('rssInput').value;
@@ -81,4 +80,4 @@ export function submitForm(state1, e) {
 
   addRssNode(state.getFeedByURL(feedURL));
   state.inputFieldStatus = 'feedInitialization';
-}
+};
