@@ -22,7 +22,7 @@ export default () => {
     refreshTime: 0,
   };
 
-  i18next.init({ debug: false }, (err) => {
+  i18next.init({ debug: false }, (err) => { // eslint-disable-line
     if (err) return console.log('something went wrong loading', err);
   }).then(() => {
     i18next.addResourceBundle('dev', 'translation', errorTransition);
