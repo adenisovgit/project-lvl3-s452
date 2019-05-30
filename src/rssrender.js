@@ -2,8 +2,12 @@ import { feedTemplate, articleTemplate } from './templates';
 
 export const switchLoadingRssNode = (feed1, onOff) => {
   const feed = feed1;
-  if (onOff) document.getElementById(`spinner${feed.id}`).classList.remove('d-none');
-  else document.getElementById(`spinner${feed.id}`).classList.add('d-none');
+  const spinner = document.getElementById(`spinner${feed.id}`);
+  if (onOff) {
+    spinner.classList.remove('d-none');
+  } else {
+    spinner.classList.add('d-none');
+  }
 };
 
 export const updateRssNode = (feed1, articles) => {
@@ -21,9 +25,8 @@ export const updateRssNode = (feed1, articles) => {
 
   feedTitle.innerText = feed.title;
   feedTitle.setAttribute('title', feed.description);
-  document.getElementById(`card${feed.id}`)
-    .querySelector('span.badge').innerText = articles
-      .filter(item => item.feedId === feed.id).length;
+  const badgeArticlesCount = document.getElementById(`card${feed.id}`).querySelector('span.badge');
+  badgeArticlesCount.innerText = articles.filter(item => item.feedId === feed.id).length;
 
   const ul = document.createElement('ul');
   ul.classList.add('list-group');
@@ -47,17 +50,21 @@ export const updateRssNode = (feed1, articles) => {
   const feedBody = document.getElementById(`cardbody${feed.id}`);
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);
-  feed.status = 'ok';
   switchLoadingRssNode(feed, false);
 };
 
-export const addRssNode = (feed) => {
+export const addFeedNode = (feed) => {
   const newCard = document.createRange()
     .createContextualFragment(feedTemplate.replace(/template/gi, feed.id));
   const feedsAccordion = document.getElementById('feedsAccordion');
   const toRemoveShow = feedsAccordion.querySelector('.collapse.show');
   if (toRemoveShow) toRemoveShow.classList.remove('show');
   feedsAccordion.appendChild(newCard);
-  document.getElementById(`rssheadbutton${feed.id}`)
-    .innerText = feed.title;
+  const rssHeader = document.getElementById(`rssheadbutton${feed.id}`);
+  rssHeader.innerText = feed.title;
+};
+
+export const deleteFeedNode = (feedId) => {
+  const feedNode = document.getElementById(`card${feedId}`);
+  feedNode.remove();
 };
