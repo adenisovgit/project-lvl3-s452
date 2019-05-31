@@ -9,19 +9,21 @@ i18next.init({ debug: false }).then(() => {
 });
 
 
-const updateRssFeed = (feed1, state1) => {
-  const feed = feed1;
+const updateRssFeed = (feed, state) => { /* eslint-disable no-param-reassign */
   feed.status = (feed.status === 'added') ? 'updatingAdded' : 'updating';
-  const state = state1;
   const url = getFeedURLCORS(feed.url);
   axios.get(url)
     .then((response) => {
-      const parsedData = parseFeedData(response.data, feed.id, feed.updateTime);
+      const parsedData = parseFeedData(response.data);
+      const newArticles = parsedData.articles.filter(art => art.pubDate > feed.updateTime);
+      newArticles.forEach((art) => {
+        art.feedId = feed.id;
+      });
       feed.title = parsedData.feed.title;
       feed.description = parsedData.feed.description;
       feed.updateTime = new Date();
       feed.error = '';
-      state.articles.push(...parsedData.articles);
+      state.articles.push(...newArticles);
 
       feed.status = 'updated';
       if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'initial';
@@ -34,6 +36,6 @@ const updateRssFeed = (feed1, state1) => {
         state.inputFieldStatus = 'feedInitFail';
       }
     });
-};
+}; /* eslint-enable no-param-reassign */
 
 export default updateRssFeed;

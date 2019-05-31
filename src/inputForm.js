@@ -4,7 +4,7 @@ import updateRssFeed from './feedUpdate';
 
 const getNewFeedId = uniqueid();
 
-export function processRssAddress() {
+export function renderRssAddress() {
   const rssInput = document.getElementById('rssInput');
   const addRssButton = document.getElementById('rssInputButton');
   const inputErrorMessage = document.getElementById('inputErrorMessage');
@@ -48,8 +48,7 @@ export function processRssAddress() {
   }
 }
 
-export const processInputString = (state1, e) => {
-  const state = state1;
+export const processInputString = (state, e) => { /* eslint-disable no-param-reassign */
   if (isURL(e.target.value)) {
     state.inputFieldStatus = state.feeds
       .find(item => item.url === e.target.value) ? 'feedAlreadyAdded' : 'ok';
@@ -58,10 +57,9 @@ export const processInputString = (state1, e) => {
   } else {
     state.inputFieldStatus = 'badURL';
   }
-};
+}; /* eslint-enable no-param-reassign */
 
-export const submitForm = (state1, e) => {
-  const state = state1;
+export const submitForm = (state, e) => { /* eslint-disable no-param-reassign */
   e.preventDefault();
   const url = document.getElementById('rssInput').value;
   if (url === '') {
@@ -80,4 +78,4 @@ export const submitForm = (state1, e) => {
   updateRssFeed(newFeed, state);
 
   state.inputFieldStatus = 'feedInitialization';
-};
+}; /* eslint-enable no-param-reassign */

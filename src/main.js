@@ -1,7 +1,7 @@
 import '@babel/polyfill';
 import watchJS from 'melanke-watchjs';
 
-import { processRssAddress, processInputString, submitForm } from './inputForm';
+import { renderRssAddress, processInputString, submitForm } from './inputForm';
 import {
   updateRssNode, switchLoadingRssNode, addFeedNode, deleteFeedNode,
 } from './rssrender';
@@ -22,7 +22,7 @@ export default () => {
     refreshTime: 0,
   };
 
-  const processFeeds = (prop, action, newValue, oldValue) => {
+  const renderFeeds = (prop, action, newValue, oldValue) => {
     if (action === 'push') {
       addFeedNode(newValue);
       return;
@@ -64,6 +64,6 @@ export default () => {
   document.getElementById('refreshTimeSelect')
     .addEventListener('input', setRefreshTime);
 
-  watchJS.watch(state, 'inputFieldStatus', processRssAddress);
-  watchJS.watch(state, 'feeds', processFeeds);
+  watchJS.watch(state, 'inputFieldStatus', renderRssAddress);
+  watchJS.watch(state, 'feeds', renderFeeds);
 };

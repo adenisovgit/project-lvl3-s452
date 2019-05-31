@@ -1,7 +1,6 @@
 import { feedTemplate, articleTemplate } from './templates';
 
-export const switchLoadingRssNode = (feed1, onOff) => {
-  const feed = feed1;
+export const switchLoadingRssNode = (feed, onOff) => {
   const spinner = document.getElementById(`spinner${feed.id}`);
   if (onOff) {
     spinner.classList.remove('d-none');
@@ -10,8 +9,7 @@ export const switchLoadingRssNode = (feed1, onOff) => {
   }
 };
 
-export const updateRssNode = (feed1, articles) => {
-  const feed = feed1;
+export const updateRssNode = (feed, articles) => {
   const feedTitle = document.getElementById(`rssheadbutton${feed.id}`);
 
   const errorMessageDiv = document.getElementById(`errorMessage${feed.id}`);
