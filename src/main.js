@@ -1,11 +1,9 @@
 import '@babel/polyfill';
 import watchJS from 'melanke-watchjs';
 
-import { renderRssAddress, processInputString, submitForm } from './inputForm';
-import {
-  updateRssNode, switchLoadingRssNode, addFeedNode, deleteFeedNode,
-} from './rssrender';
+import { processInputString, submitForm } from './inputForm';
 import updateRssFeed from './feedUpdate';
+import { renderRssAddress, renderFeeds } from './watchers';
 
 
 export default () => {
@@ -20,27 +18,6 @@ export default () => {
       return this.feeds[this.getFeedNumByURL(url)];
     },
     refreshTime: 0,
-  };
-
-  const renderFeeds = (prop, action, newValue, oldValue) => {
-    if (action === 'push') {
-      addFeedNode(newValue);
-      return;
-    }
-
-    if (action === 'splice') {
-      deleteFeedNode(oldValue[0].id);
-      return;
-    }
-
-    if (prop !== 'status') return;
-
-    const feedsToRender = state.feeds.filter(item => item.status === 'updated');
-    feedsToRender.forEach(feed => updateRssNode(feed, state.articles));
-
-    const feedsToTurnOnLoadingIcon = state.feeds
-      .filter(item => ['updatingAdded', 'updating'].includes(item.status));
-    feedsToTurnOnLoadingIcon.forEach(feed => switchLoadingRssNode(feed, true));
   };
 
   let refreshTimerID = -1;
@@ -65,5 +42,5 @@ export default () => {
     .addEventListener('input', setRefreshTime);
 
   watchJS.watch(state, 'inputFieldStatus', renderRssAddress);
-  watchJS.watch(state, 'feeds', renderFeeds);
+  watchJS.watch(state, 'feeds', renderFeeds.bind(state));
 };
