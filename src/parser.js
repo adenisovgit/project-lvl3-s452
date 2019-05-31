@@ -6,10 +6,14 @@ export default (rawData) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(rawData, 'application/xml');
 
-  const feedData = { feed: {}, articles: [] };
-  feedData.feed.title = doc.querySelector('channel>title').textContent;
-  feedData.feed.description = doc.querySelector('channel>description').textContent;
-  feedData.feed.updateTime = new Date();
+  const feedData = {
+    feed: {
+      title: doc.querySelector('channel>title').textContent,
+      description: doc.querySelector('channel>description').textContent,
+      updateTime: new Date(),
+    },
+    articles: [],
+  };
   doc.querySelectorAll('channel>item').forEach((item) => {
     feedData.articles.push({
       id: getNewArticleId(),
