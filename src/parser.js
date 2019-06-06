@@ -10,7 +10,7 @@ export default (rawData) => {
     feed: {
       title: doc.querySelector('channel>title').textContent,
       description: doc.querySelector('channel>description').textContent,
-      updateTime: new Date(),
+      lastUpdateTime: new Date(),
     },
     articles: [],
   };

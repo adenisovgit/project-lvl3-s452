@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import main from './main';
+import application from './application';
 import 'bootstrap';
 
-main();
+application();
