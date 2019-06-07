@@ -21,6 +21,7 @@ const state = {
   getFeedByURL(url) {
     return this.feeds[this.getFeedNumByURL(url)];
   },
+  refreshTime: 0,
 };
 
 const updateRssFeed = (feed) => { /* eslint-disable no-param-reassign */
@@ -84,14 +85,28 @@ function renderFeeds(prop, action, newValue, oldValue) {
   renderFeedsActions[feedAction](feed, feedId, state.articles);
 }
 
+let refreshTimerID = -1;
+
+const autoRefresh = () => {
+  clearInterval(refreshTimerID);
+  if (state.refreshTime === 0) return;
+  refreshTimerID = setTimeout(autoRefresh, state.refreshTime * 1000);
+  state.feeds.forEach(feed => updateRssFeed(feed));
+};
+
+const setRefreshTime = (e) => {
+  state.refreshTime = Number(e.target.value);
+  autoRefresh();
+};
+
 export default () => {
   console.log(state);
   // document.getElementById('rssInput')
   //   .addEventListener('input', processInputString.bind(null, state));
   document.getElementById('rssInputForm')
     .addEventListener('submit', submitForm);
-  // document.getElementById('refreshTimeSelect')
-  //   .addEventListener('input', setRefreshTime);
+  document.getElementById('refreshTimeSelect')
+    .addEventListener('input', setRefreshTime);
 
   // watchJS.watch(state, 'inputFieldStatus', renderRssAddress);
   watchJS.watch(state, 'feeds', renderFeeds);
