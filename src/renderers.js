@@ -27,9 +27,7 @@ export const switchLoadingRssNode = (feed, onOff = true) => {
 };
 
 export const updateRssNode = (feed, articles) => {
-  console.log('++++++    ', feed, articles);
   const feedTitle = document.getElementById(`rssheadbutton${feed.id}`);
-
   const errorMessageDiv = document.getElementById(`errorMessage${feed.id}`);
   errorMessageDiv.innerText = feed.error;
 

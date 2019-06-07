@@ -66,7 +66,7 @@ const renderFeedsActions = {
   updated: (feed, feedId, articles) => updateRssNode(feed, articles),
 };
 
-const renderFeeds = (prop, action, newValue, oldValue) => {
+function renderFeeds(prop, action, newValue, oldValue) {
   let feedAction;
   let feedId;
   let feed;
@@ -78,12 +78,11 @@ const renderFeeds = (prop, action, newValue, oldValue) => {
     feedId = oldValue[0].id;
   } else if (prop === 'status') {
     feedAction = newValue;
-    feed = state.feeds.find(elem => elem.status === newValue);
+    feed = this;
   } else return;
-  console.log(prop, action, newValue, oldValue, feed);
 
   renderFeedsActions[feedAction](feed, feedId, state.articles);
-};
+}
 
 export default () => {
   console.log(state);
