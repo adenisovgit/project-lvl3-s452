@@ -74,9 +74,8 @@ function renderFeeds(prop, action, newValue, oldValue) {
   if (prop !== 'status') return;
   const feedAction = newValue;
   const feed = this;
-  const feedId = this.id;
   console.log(this, prop, action, newValue, oldValue);
-  renderFeedsActions[feedAction](feed, feedId, state.articles);
+  renderFeedsActions[feedAction](feed, feed.id, state.articles);
 }
 
 let refreshTimerID = -1;
@@ -86,7 +85,7 @@ const autoRefresh = () => {
   if (state.refreshTime === 0) return;
   refreshTimerID = setTimeout(autoRefresh, state.refreshTime * 1000);
   state.feeds
-    .filter(feed => feed.status !== 'deleted')
+    .filter(feed => !['deleted', 'added'].includes(feed.status))
     .forEach(feed => updateRssFeed(feed));
 };
 
