@@ -49,13 +49,16 @@ const submitForm = (e) => {
   const url = document.getElementById('rssInput').value;
 
   const newFeed = {
-    id: getNewFeedId(), url, status: 'added', title: url, description: url, lastUpdateTime: 0,
+    id: getNewFeedId(), url, status: '', title: url, description: url, lastUpdateTime: 0,
   };
   state.feeds.push(newFeed);
+  const feedNumber = state.getFeedNumByURL(newFeed.url);
+  state.feeds[feedNumber].status = 'added';
   updateRssFeed(newFeed)
     .catch(() => {
-      console.log('!!!!!!!!!!');
-      state.feeds.splice(state.getFeedNumByURL(newFeed.url), 1);
+      state.feeds[feedNumber].status = 'deleted';
+      const timeToPostponeFeedRemoving = 5000;
+      setTimeout(() => state.feeds.splice(feedNumber, 1), timeToPostponeFeedRemoving);
     });
   // state.inputFieldStatus = 'initial';
 };
@@ -68,20 +71,11 @@ const renderFeedsActions = {
 };
 
 function renderFeeds(prop, action, newValue, oldValue) {
-  let feedAction;
-  let feedId;
-  let feed;
-  if (action === 'push') {
-    feedAction = 'added';
-    feed = newValue;
-  } else if (action === 'splice') {
-    feedAction = 'deleted';
-    feedId = oldValue[0].id;
-  } else if (prop === 'status') {
-    feedAction = newValue;
-    feed = this;
-  } else return;
-
+  if (prop !== 'status') return;
+  const feedAction = newValue;
+  const feed = this;
+  const feedId = this.id;
+  console.log(this, prop, action, newValue, oldValue);
   renderFeedsActions[feedAction](feed, feedId, state.articles);
 }
 
@@ -91,7 +85,9 @@ const autoRefresh = () => {
   clearInterval(refreshTimerID);
   if (state.refreshTime === 0) return;
   refreshTimerID = setTimeout(autoRefresh, state.refreshTime * 1000);
-  state.feeds.forEach(feed => updateRssFeed(feed));
+  state.feeds
+    .filter(feed => feed.status !== 'deleted')
+    .forEach(feed => updateRssFeed(feed));
 };
 
 const setRefreshTime = (e) => {
