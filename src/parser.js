@@ -7,11 +7,9 @@ export default (rawData) => {
   const doc = parser.parseFromString(rawData, 'application/xml');
 
   const feedData = {
-    feed: {
-      title: doc.querySelector('channel>title').textContent,
-      description: doc.querySelector('channel>description').textContent,
-      lastUpdateTime: new Date(),
-    },
+    title: doc.querySelector('channel>title').textContent,
+    description: doc.querySelector('channel>description').textContent,
+    lastUpdateTime: new Date(),
     articles: [],
   };
   doc.querySelectorAll('channel>item').forEach((item) => {

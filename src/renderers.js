@@ -12,8 +12,8 @@ export const addFeedNode = (feed) => {
   rssHeader.innerText = feed.title;
 };
 
-export const deleteFeedNode = (feedId) => {
-  const feedNode = document.getElementById(`card${feedId}`);
+export const deleteFeedNode = (feed) => {
+  const feedNode = document.getElementById(`card${feed.id}`);
   feedNode.remove();
 };
 
@@ -26,7 +26,7 @@ export const switchLoadingRssNode = (feed, onOff = true) => {
   }
 };
 
-export const updateRssNode = (feed, articles) => {
+export const updateRssNode = (feed) => {
   const feedTitle = document.getElementById(`rssheadbutton${feed.id}`);
   const errorMessageDiv = document.getElementById(`errorMessage${feed.id}`);
   errorMessageDiv.innerText = feed.error;
@@ -40,12 +40,12 @@ export const updateRssNode = (feed, articles) => {
   feedTitle.innerText = feed.title;
   feedTitle.setAttribute('title', feed.description);
   const badgeArticlesCount = document.getElementById(`card${feed.id}`).querySelector('span.badge');
-  badgeArticlesCount.innerText = articles.filter(item => item.feedId === feed.id).length;
+  badgeArticlesCount.innerText = feed.articles.length;
 
   const ul = document.createElement('ul');
   ul.classList.add('list-group');
 
-  articles.filter(item => item.feedId === feed.id)
+  feed.articles
     .sort((a, b) => b.pubDate - a.pubDate)
     .forEach((art) => {
       const li = document.createElement('li');
