@@ -3,29 +3,16 @@ import uniqueid from 'uniqueid';
 import axios from 'axios';
 import watchJS from 'melanke-watchjs';
 
-import { getFeedURLCORS } from './utils';
+import getFeedURLCORS from './utils';
 import parseFeedData from './parser';
 import {
-  updateRssNode, switchLoadingRssNode, addFeedNode, deleteFeedNode,
+  updateRssNode, switchLoadingRssNode, deleteFeedNode,
 } from './renderers';
 
 const getNewFeedId = uniqueid();
 
-const state = {
-  inputFieldStatus: 'initial',
-  feeds: [], //    { id, title, description, lastUpdateTime, status, }
-  articles: [],
-  getFeedNumByURL(url) {
-    return this.feeds.findIndex(item => item.url === url);
-  },
-  getFeedByURL(url) {
-    return this.feeds[this.getFeedNumByURL(url)];
-  },
-  refreshTime: 0,
-};
-
-const updateRssFeed = (feed) => { /* eslint-disable no-param-reassign */
-  feed.status = 'updating';
+const updateRssFeed = (feed, state) => { /* eslint-disable no-param-reassign */
+  feed.updating = true;
   const url = getFeedURLCORS(feed.url);
   return axios.get(url)
     .then((response) => {
@@ -34,80 +21,90 @@ const updateRssFeed = (feed) => { /* eslint-disable no-param-reassign */
       newArticles.forEach((art) => {
         art.feedId = feed.id;
       });
+      state.articles.push(...newArticles);
       feed.title = parsedData.feed.title;
       feed.description = parsedData.feed.description;
-      feed.lastUpdateTime = new Date();
       feed.error = '';
-      state.articles.push(...newArticles);
-      feed.status = 'updated';
-      if (state.inputFieldStatus === 'feedInitialization') state.inputFieldStatus = 'initial';
+      feed.lastUpdateTime = new Date();
+    })
+    .catch(() => {
+      feed.error = 'Problem with loading feed';
+    })
+    .finally(() => {
+      feed.updating = false;
     });
 }; /* eslint-enable no-param-reassign */
 
-const submitForm = (e) => {
+const submitForm = (state, e) => { /* eslint-disable no-param-reassign */
   e.preventDefault();
+  // !!!!!!!! change taking value from the form
+  const formData = new FormData(e.target);
+  console.log(e.target, formData);
   const url = document.getElementById('rssInput').value;
-
-  const newFeed = {
-    id: getNewFeedId(), url, status: 'added', title: url, description: url, lastUpdateTime: 0,
-  };
-  state.feeds.push(newFeed);
-  updateRssFeed(newFeed)
-    .catch(() => {
-      console.log('!!!!!!!!!!');
-      state.feeds.splice(state.getFeedNumByURL(newFeed.url), 1);
+  state.newFeed.id = getNewFeedId();
+  state.newFeed.error = '';
+  state.newFeed.url = url;
+  state.newFeed.title = url;
+  state.newFeed.description = url;
+  state.newFeed.lastUpdateTime = 0;
+  updateRssFeed(state.newFeed, state)
+    .then(() => {
+      const feedToPush = Object.assign({}, state.newFeed);
+      state.feeds.push(feedToPush);
     });
-  // state.inputFieldStatus = 'initial';
+}; /* eslint-enable no-param-reassign */
+
+const renderFeedActions = {
+  lastUpdateTime: (feed, articles) => updateRssNode(feed, articles),
+  updating: switchLoadingRssNode,
+  error: deleteFeedNode,
 };
 
-const renderFeedsActions = {
-  added: feed => addFeedNode(feed),
-  deleted: (feed, feedId) => deleteFeedNode(feedId),
-  updating: feed => switchLoadingRssNode(feed),
-  updated: (feed, feedId, articles) => updateRssNode(feed, articles),
-};
+function renderFeeds(prop, action, newValue, oldValue, state) {
+  if (!['lastUpdateTime', 'updating'].includes(prop)) return;
+  renderFeedActions[prop](this, state.articles);
+}
 
-function renderFeeds(prop, action, newValue, oldValue) {
-  let feedAction;
-  let feedId;
-  let feed;
-  if (action === 'push') {
-    feedAction = 'added';
-    feed = newValue;
-  } else if (action === 'splice') {
-    feedAction = 'deleted';
-    feedId = oldValue[0].id;
-  } else if (prop === 'status') {
-    feedAction = newValue;
-    feed = this;
-  } else return;
-
-  renderFeedsActions[feedAction](feed, feedId, state.articles);
+function renderNewFeed(prop) {
+  if (!['lastUpdateTime', 'error', 'updating'].includes(prop)) return;
+  renderFeedActions[prop](this.newFeed, this.articles);
 }
 
 let refreshTimerID = -1;
 
-const autoRefresh = () => {
+const autoRefresh = (state) => {
   clearInterval(refreshTimerID);
   if (state.refreshTime === 0) return;
-  refreshTimerID = setTimeout(autoRefresh, state.refreshTime * 1000);
-  state.feeds.forEach(feed => updateRssFeed(feed));
+  refreshTimerID = setTimeout(autoRefresh, state.refreshTime * 1000, state);
+  state.feeds.forEach(feed => updateRssFeed(feed, state));
 };
 
-const setRefreshTime = (e) => {
-  state.refreshTime = Number(e.target.value);
-  autoRefresh();
+const setRefreshTime = (state, e) => {
+  state.refreshTime = Number(e.target.value); // eslint-disable-line no-param-reassign
+  autoRefresh(state);
 };
 
 export default () => {
-  console.log(state);
+  const state = {
+    inputFieldStatus: 'initial',
+    feeds: [],
+    articles: [],
+    newFeed: {
+      id: 0, url: '', title: '', description: '', lastUpdateTime: -1, error: '', updating: false,
+    },
+    refreshTime: 0,
+  };
+
   // document.getElementById('rssInput')
   //   .addEventListener('input', processInputString.bind(null, state));
   document.getElementById('rssInputForm')
-    .addEventListener('submit', submitForm);
+    .addEventListener('submit', submitForm.bind(null, state));
   document.getElementById('refreshTimeSelect')
-    .addEventListener('input', setRefreshTime);
+    .addEventListener('input', setRefreshTime.bind(null, state));
 
   // watchJS.watch(state, 'inputFieldStatus', renderRssAddress);
-  watchJS.watch(state, 'feeds', renderFeeds);
+  watchJS.watch(state, 'feeds', function (prop, action, newValue, oldValue) { // eslint-disable-line func-names
+    renderFeeds.call(this, prop, action, newValue, oldValue, state);
+  });
+  watchJS.watch(state, 'newFeed', renderNewFeed.bind(state));
 };

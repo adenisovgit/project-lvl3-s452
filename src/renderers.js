@@ -1,33 +1,47 @@
 import { feedTemplate, articleTemplate } from './templates';
 
 
-export const addFeedNode = (feed) => {
+export const getFeedNode = (feed) => {
+  const feedNode = document.getElementById(`rssheadbutton${feed.id}`);
+  if (feedNode !== null) {
+    return feedNode;
+  }
   const newCard = document.createRange()
     .createContextualFragment(feedTemplate.replace(/template/gi, feed.id));
   const feedsAccordion = document.getElementById('feedsAccordion');
-  const toRemoveShow = feedsAccordion.querySelector('.collapse.show');
-  if (toRemoveShow) toRemoveShow.classList.remove('show');
+  const NodeToRemoveShow = feedsAccordion.querySelector('.collapse.show');
+  if (NodeToRemoveShow) NodeToRemoveShow.classList.remove('show');
   feedsAccordion.appendChild(newCard);
   const rssHeader = document.getElementById(`rssheadbutton${feed.id}`);
   rssHeader.innerText = feed.title;
+  const newFeedNode = document.getElementById(`rssheadbutton${feed.id}`);
+  return newFeedNode;
 };
 
-export const deleteFeedNode = (feedId) => {
-  const feedNode = document.getElementById(`card${feedId}`);
-  feedNode.remove();
+export const deleteFeedNode = (feed) => {
+  try {
+    const feedNode = document.getElementById(`card${feed.id}`);
+    feedNode.remove();
+  } catch {
+    // is it ok just to leave like that?
+  }
 };
 
-export const switchLoadingRssNode = (feed, onOff = true) => {
-  const spinner = document.getElementById(`spinner${feed.id}`);
-  if (onOff) {
-    spinner.classList.remove('d-none');
-  } else {
-    spinner.classList.add('d-none');
+export const switchLoadingRssNode = (feed) => {
+  try {
+    const spinner = document.getElementById(`spinner${feed.id}`);
+    if (feed.updating) {
+      spinner.classList.remove('d-none');
+    } else {
+      spinner.classList.add('d-none');
+    }
+  } catch {
+    //
   }
 };
 
 export const updateRssNode = (feed, articles) => {
-  const feedTitle = document.getElementById(`rssheadbutton${feed.id}`);
+  const feedTitle = getFeedNode(feed);
   const errorMessageDiv = document.getElementById(`errorMessage${feed.id}`);
   errorMessageDiv.innerText = feed.error;
 
@@ -63,5 +77,4 @@ export const updateRssNode = (feed, articles) => {
   const feedBody = document.getElementById(`cardbody${feed.id}`);
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);
-  switchLoadingRssNode(feed, false);
 };
