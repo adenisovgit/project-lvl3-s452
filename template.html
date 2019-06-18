@@ -12,7 +12,7 @@
       <h1 class="display-4">Simple RSS Reader</h1>
       <form id="rssInputForm" class="needs-validation" novalidate>
         <div class="form-group">
-          <input type="text" id="rssInput" class="form-control" placeholder="Enter RSS feed:">
+          <input type="text" name="rssInput" id="rssInput" class="form-control" placeholder="Enter RSS feed:">
           <div class="invalid-feedback" id="inputErrorMessage">
               Please provide a valid RSS feed.
           </div>
@@ -23,7 +23,7 @@
             </div>
             <div class="col-8 d-flex justify-content-end my-auto"> Refresh time:</div>
             <div class="col-2 my-auto">
-              <select id="refreshTimeSelect" class="form-control form-control-sm">
+              <select name="refreshTimeSelect" id="refreshTimeSelect" class="form-control form-control-sm">
                 <option selected value="0">Do not refresh</option>
                 <option value="5">5 seconds</option>
                 <option value="30">30 seconds</option>

@@ -37,10 +37,8 @@ const updateRssFeed = (feed, state) => { /* eslint-disable no-param-reassign */
 
 const submitForm = (state, e) => { /* eslint-disable no-param-reassign */
   e.preventDefault();
-  // !!!!!!!! change taking value from the form
   const formData = new FormData(e.target);
-  console.log(e.target, formData);
-  const url = document.getElementById('rssInput').value;
+  const url = formData.get('rssInput');
   state.newFeed.id = getNewFeedId();
   state.newFeed.error = '';
   state.newFeed.url = url;
