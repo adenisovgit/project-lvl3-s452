@@ -39,34 +39,16 @@ const submitForm = (state, e) => { /* eslint-disable no-param-reassign */
   e.preventDefault();
   const formData = new FormData(e.target);
   const url = formData.get('rssInput');
-  state.newFeed.id = getNewFeedId();
-  state.newFeed.error = '';
-  state.newFeed.url = url;
-  state.newFeed.title = url;
-  state.newFeed.description = url;
-  state.newFeed.lastUpdateTime = 0;
+  const newFeed = {
+    id: getNewFeedId(), error: '', url, title: url, description: url, lastUpdateTime: 0,
+  };
+  state.newFeed = Object.assign(state.newFeed, newFeed);
   updateRssFeed(state.newFeed, state)
     .then(() => {
       const feedToPush = Object.assign({}, state.newFeed);
       state.feeds.push(feedToPush);
     });
 }; /* eslint-enable no-param-reassign */
-
-const renderFeedActions = {
-  lastUpdateTime: (feed, articles) => updateRssNode(feed, articles),
-  updating: switchLoadingRssNode,
-  error: deleteFeedNode,
-};
-
-function renderFeeds(prop, action, newValue, oldValue, state) {
-  if (!['lastUpdateTime', 'updating'].includes(prop)) return;
-  renderFeedActions[prop](this, state.articles);
-}
-
-function renderNewFeed(prop) {
-  if (!['lastUpdateTime', 'error', 'updating'].includes(prop)) return;
-  renderFeedActions[prop](this.newFeed, this.articles);
-}
 
 let refreshTimerID = -1;
 
@@ -101,8 +83,15 @@ export default () => {
     .addEventListener('input', setRefreshTime.bind(null, state));
 
   // watchJS.watch(state, 'inputFieldStatus', renderRssAddress);
-  watchJS.watch(state, 'feeds', function (prop, action, newValue, oldValue) { // eslint-disable-line func-names
-    renderFeeds.call(this, prop, action, newValue, oldValue, state);
+
+  const renderFeedActions = {
+    lastUpdateTime: (feed, articles) => updateRssNode(feed, articles),
+    updating: switchLoadingRssNode,
+    error: deleteFeedNode,
+  };
+  watchJS.watch(state.feeds, ['lastUpdateTime', 'updating'], function (prop) { // eslint-disable-line func-names
+    renderFeedActions[prop](this, state.articles);
   });
-  watchJS.watch(state, 'newFeed', renderNewFeed.bind(state));
+  watchJS.watch(state.newFeed, ['lastUpdateTime', 'updating', 'error'],
+    prop => renderFeedActions[prop](state.newFeed, state.articles));
 };
