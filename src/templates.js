@@ -29,7 +29,7 @@ export const articleTemplate = `<div class="row">
 </div>
 <div class="col-2">
   <!-- Button trigger modal -->
-  <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#articleModal">Description</button>
+  <button type="button" class="btn btn-outline-secondary" id="articleButtonModal" data-toggle="modal" data-target="#articleModal">Description</button>
   <!-- Modal -->
   <div class="modal fade" id="articleModal" tabindex="-1" role="dialog" aria-labelledby="articleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">

@@ -42,6 +42,9 @@ export const switchLoadingRssNode = (feed) => {
 
 export const updateRssNode = (feed, articles) => {
   const feedTitle = getFeedNode(feed);
+  const openModal = document.querySelector('.modal.fade.show');
+  const isOpenModal = !!openModal;
+  const openModalId = !isOpenModal ? '' : openModal.id.replace('articleModal', 'articleButtonModal');
   const errorMessageDiv = document.getElementById(`errorMessage${feed.id}`);
   errorMessageDiv.innerText = feed.error;
 
@@ -66,6 +69,7 @@ export const updateRssNode = (feed, articles) => {
       li.classList.add('list-group-item');
       const articleElemString = articleTemplate
         .replace(/articleModal/g, `articleModal${art.id}`)
+        .replace(/articleButtonModal/g, `articleButtonModal${art.id}`)
         .replace(/articleLink/g, art.link)
         .replace(/articleTitle/g, art.title)
         .replace(/articleDescription_14052030/g, art.description)
@@ -77,4 +81,8 @@ export const updateRssNode = (feed, articles) => {
   const feedBody = document.getElementById(`cardbody${feed.id}`);
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);
+  if (isOpenModal) {
+    const openModalButton = document.getElementById(openModalId);
+    openModalButton.click();
+  }
 };
