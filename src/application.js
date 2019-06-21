@@ -23,7 +23,7 @@ const updateRssFeed = (feed, state) => { /* eslint-disable no-param-reassign */
         art.feedId = feed.id;
       });
       state.articles.push(...newArticles);
-      feed = Object.assign(feed, parsedData.feed);
+      Object.assign(feed, parsedData.feed);
     })
     .catch(() => {
       feed.error = 'Problem with loading feed';
@@ -33,20 +33,20 @@ const updateRssFeed = (feed, state) => { /* eslint-disable no-param-reassign */
     });
 }; /* eslint-enable no-param-reassign */
 
-const submitForm = (state, e) => { /* eslint-disable no-param-reassign */
+const submitForm = (state, e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
   const url = formData.get('rssInput');
   const newFeed = {
     id: getNewFeedId(), error: '', url, title: url, description: url, lastUpdateTime: 0, modalOpen: false,
   };
-  state.newFeed = Object.assign(state.newFeed, newFeed);
+  Object.assign(state.newFeed, newFeed);
   updateRssFeed(state.newFeed, state)
     .then(() => {
       const feedToPush = Object.assign({}, state.newFeed);
       state.feeds.push(feedToPush);
     });
-}; /* eslint-enable no-param-reassign */
+};
 
 let refreshTimerID = -1;
 
