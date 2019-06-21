@@ -41,10 +41,8 @@ export const switchLoadingRssNode = (feed) => {
 };
 
 export const updateRssNode = (feed, articles) => {
+  if (feed.modalOpen) return;
   const feedTitle = getFeedNode(feed);
-  const openModal = document.querySelector('.modal.fade.show');
-  const isOpenModal = !!openModal;
-  const openModalId = !isOpenModal ? '' : openModal.id.replace('articleModal', 'articleButtonModal');
   const errorMessageDiv = document.getElementById(`errorMessage${feed.id}`);
   errorMessageDiv.innerText = feed.error;
 
@@ -81,8 +79,4 @@ export const updateRssNode = (feed, articles) => {
   const feedBody = document.getElementById(`cardbody${feed.id}`);
   feedBody.innerHTML = '';
   feedBody.appendChild(ul);
-  if (isOpenModal) {
-    const openModalButton = document.getElementById(openModalId);
-    openModalButton.click();
-  }
 };

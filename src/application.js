@@ -1,4 +1,5 @@
 import '@babel/polyfill';
+import $ from 'jquery';
 import uniqueid from 'uniqueid';
 import axios from 'axios';
 import watchJS from 'melanke-watchjs';
@@ -40,7 +41,7 @@ const submitForm = (state, e) => { /* eslint-disable no-param-reassign */
   const formData = new FormData(e.target);
   const url = formData.get('rssInput');
   const newFeed = {
-    id: getNewFeedId(), error: '', url, title: url, description: url, lastUpdateTime: 0,
+    id: getNewFeedId(), error: '', url, title: url, description: url, lastUpdateTime: 0, modalOpen: false,
   };
   state.newFeed = Object.assign(state.newFeed, newFeed);
   updateRssFeed(state.newFeed, state)
@@ -70,9 +71,24 @@ export default () => {
     feeds: [],
     articles: [],
     newFeed: {
-      id: 0, url: '', title: '', description: '', lastUpdateTime: -1, error: '', updating: false,
+      id: 0, url: '', title: '', description: '', lastUpdateTime: -1, error: '', updating: false, modalOpen: false,
+    },
+    getFeedNumByArticleId(artId) {
+      const { feedId } = this.articles.find(art => art.id === artId);
+      const feedNum = this.feeds.findIndex(feed => feed.id === feedId);
+      return feedNum;
     },
     refreshTime: 0,
+  };
+
+  const onModalShow = (e) => {
+    const feedNum = state.getFeedNumByArticleId(e.target.id.replace('articleModal', ''));
+    state.feeds[feedNum].modalOpen = true;
+  };
+
+  const onModalHide = (e) => {
+    const feedNum = state.getFeedNumByArticleId(e.target.id.replace('articleModal', ''));
+    state.feeds[feedNum].modalOpen = false;
   };
 
   // document.getElementById('rssInput')
@@ -81,6 +97,10 @@ export default () => {
     .addEventListener('submit', submitForm.bind(null, state));
   document.getElementById('refreshTimeSelect')
     .addEventListener('input', setRefreshTime.bind(null, state));
+  // eslint-disable-next-line no-undef
+  $(document).on('show.bs.modal', onModalShow);
+  $(document).on('hide.bs.modal', onModalHide);
+
 
   // watchJS.watch(state, 'inputFieldStatus', renderRssAddress);
 
@@ -88,8 +108,9 @@ export default () => {
     lastUpdateTime: (feed, articles) => updateRssNode(feed, articles),
     updating: switchLoadingRssNode,
     error: deleteFeedNode,
+    modalOpen: (feed, articles) => updateRssNode(feed, articles),
   };
-  watchJS.watch(state.feeds, ['lastUpdateTime', 'updating'], function (prop) { // eslint-disable-line func-names
+  watchJS.watch(state.feeds, ['lastUpdateTime', 'updating', 'modalOpen'], function (prop) { // eslint-disable-line func-names
     renderFeedActions[prop](this, state.articles);
   });
   watchJS.watch(state.newFeed, ['lastUpdateTime', 'updating', 'error'],
