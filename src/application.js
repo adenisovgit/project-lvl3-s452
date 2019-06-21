@@ -23,10 +23,7 @@ const updateRssFeed = (feed, state) => { /* eslint-disable no-param-reassign */
         art.feedId = feed.id;
       });
       state.articles.push(...newArticles);
-      feed.title = parsedData.feed.title;
-      feed.description = parsedData.feed.description;
-      feed.error = '';
-      feed.lastUpdateTime = new Date();
+      feed = Object.assign(feed, parsedData.feed);
     })
     .catch(() => {
       feed.error = 'Problem with loading feed';
