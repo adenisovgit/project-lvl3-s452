@@ -115,6 +115,11 @@ export function renderRssAddress() {
       rssInput.classList.remove('is-invalid');
       addRssButton.disabled = true;
       break;
+    case 'badURL':
+      rssInput.classList.add('is-invalid');
+      inputErrorMessage.innerHTML = 'Please, enter valid RSS feed address.';
+      addRssButton.disabled = true;
+      break;
     default:
       throw new Error('Unexpected rssAddressState state.');
   }
